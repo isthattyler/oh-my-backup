@@ -34,7 +34,9 @@ dotbak_backup_single() {
     local filename
     filename=$(basename "$actual_path")
 
-    local folder_from_home="${normalized_path#/}"
+    local folder_from_home
+    folder_from_home=$(dotbak_path_to_home_relative "$normalized_path")
+    folder_from_home="${folder_from_home#/}"
     folder_from_home="${folder_from_home/#\~}"
     folder_from_home="${folder_from_home#/}"
     folder_from_home="${folder_from_home%/*}"
@@ -52,7 +54,8 @@ dotbak_backup_single() {
     local metadata_file="$target_folder/metadata.json"
     local backup_date
     backup_date=$(date -Iseconds)
-    local original_path="$normalized_path"
+    local original_path
+    original_path=$(dotbak_path_to_home_relative "$normalized_path")
 
     if [[ -f "$metadata_file" ]]; then
         local temp_file

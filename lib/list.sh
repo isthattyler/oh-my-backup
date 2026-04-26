@@ -51,7 +51,7 @@ dotbak_list_configs() {
         fi
         echo ""
         count=$((count + 1))
-    done < <(find "$backup_dir" -type f ! -name "metadata.json" -print0 2>/dev/null)
+    done < <(find "$backup_dir" -type f ! -name "metadata.json" -not -path "*/.git/*" -print0 2>/dev/null)
 
     if [[ $count -eq 0 ]]; then
         echo "  No configs backed up yet."

@@ -59,19 +59,45 @@ dotbak_file_exists() {
 
 dotbak_normalize_config_path() {
     local input="$1"
-    local normalized
+    
+    # Convert any path to home-relative (~) format
+    local converted
+    converted=$(dotbak_path_to_home_relative "$input")
+    echo "$converted"
+}
 
-    if [[ "$input" == \.* ]] || [[ "$input" == ~* ]]; then
-        normalized="$input"
-    elif [[ "$input" == /* ]]; then
-        normalized="$input"
-    else
-        normalized="~/$input"
+dotbak_path_to_home_relative() {
+    local path="$1"
+    
+    # If already starts with ~, return as-is
+    if [[ "$path" == ~* ]]; then
+        echo "$path"
+        return
     fi
-
-    normalized=$(echo "$normalized" | sed 's|/\+|/|g')
-
-    echo "$normalized"
+    
+    # If path starts with HOME directory, convert to ~
+    if [[ "$path" == "$HOME"* ]]; then
+        local rel="${path#$HOME}"
+        echo "~$rel"
+        return
+    fi
+    
+    # If absolute path starting with /c/ or /C/ (Windows Git Bash style)
+    if [[ "$path" =~ ^/[cC]/ ]]; then
+        local converted="${path#/c/}"
+        converted="${converted#/C/}"
+        echo "~$converted"
+        return
+    fi
+    
+    # For other absolute paths, return as-is
+    if [[ "$path" == /* ]]; then
+        echo "$path"
+        return
+    fi
+    
+    # For relative paths, return as-is
+    echo "$path"
 }
 
 dotbak_get_file_from_config() {
@@ -92,17 +118,59 @@ dotbak_get_folder_from_config() {
 
 dotbak_resolve_to_home() {
     local path="$1"
-    local expanded
-    expanded=$(dotbak_path_expand "$path")
-    if [[ -f "$expanded" ]]; then
-        echo "$expanded"
-    elif [[ "$path" != "~"* ]] && [[ "$path" != "/"* ]]; then
-        local with_home="$HOME/$path"
-        if [[ -f "$with_home" ]]; then
-            echo "$with_home"
+    
+    # If path starts with HOME directory, check it directly
+    if [[ "$path" == "$HOME"* ]]; then
+        if [[ -f "$path" ]]; then
+            echo "$path"
         else
             echo ""
         fi
+        return
+    fi
+    
+    # If absolute path starting with /c/ or /C/ (Windows Git Bash style)
+    if [[ "$path" =~ ^/[cC]/ ]]; then
+        if [[ -f "$path" ]]; then
+            echo "$path"
+        else
+            echo ""
+        fi
+        return
+    fi
+    
+    # If path starts with ~, expand and check
+    if [[ "$path" == ~* ]]; then
+        local expanded="${path/#\~/$HOME}"
+        if [[ -f "$expanded" ]]; then
+            echo "$expanded"
+        else
+            echo ""
+        fi
+        return
+    fi
+    
+    # If absolute path, check as-is
+    if [[ "$path" == /* ]]; then
+        if [[ -f "$path" ]]; then
+            echo "$path"
+        else
+            echo ""
+        fi
+        return
+    fi
+    
+    # Check current directory first
+    local pwd_path="$PWD/$path"
+    if [[ -f "$pwd_path" ]]; then
+        echo "$pwd_path"
+        return
+    fi
+    
+    # Check home directory
+    local in_home="$HOME/$path"
+    if [[ -f "$in_home" ]]; then
+        echo "$in_home"
     else
         echo ""
     fi
