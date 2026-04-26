@@ -13,7 +13,6 @@ show_usage() {
     echo "Usage: dotbak <command> [options]"
     echo ""
     echo "Commands:"
-    echo "  init           Initialize dotbak (create tool and backup directories)"
     echo "  backup <file>  Backup a config file (e.g., dotbak backup .zshrc)"
     echo "  backup-all     Backup all tracked configs"
     echo "  install <file> Install a config from backup"
@@ -22,7 +21,6 @@ show_usage() {
     echo "  status         Show dotbak status"
     echo ""
     echo "Examples:"
-    echo "  dotbak init"
     echo "  dotbak backup .zshrc"
     echo "  dotbak backup ~/.config/opencode/opencode.json"
     echo "  dotbak install .zshrc"
@@ -33,16 +31,6 @@ show_usage() {
 }
 
 case "$1" in
-    init)
-        if [[ -d "$LIB_DIR" ]]; then
-            source "$LIB_DIR/init.sh"
-            dotbak_init
-        else
-            echo "Error: dotbak lib not found. Please reinstall dotbak."
-            exit 1
-        fi
-        ;;
-
     backup)
         if [[ -z "$2" ]]; then
             echo "Error: Please specify a file to backup."
