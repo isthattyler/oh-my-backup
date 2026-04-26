@@ -55,9 +55,21 @@ if [[ -L "$HOME/bin/dotbak" ]]; then
 fi
 ln -sf "$TOOL_DIR/dotbak" "$HOME/bin/dotbak"
 echo "Created symlink: ~/bin/dotbak"
-echo "Make sure ~/bin is in your PATH (added automatically in ~/.bashrc/.zshrc)"
-if ! grep -q 'export PATH="$HOME/bin:$PATH"' "$HOME/.bashrc" 2>/dev/null; then
-    echo 'export PATH="$HOME/bin:$PATH"' >> "$HOME/.bashrc"
+
+if [[ -f "$HOME/.zshrc" ]]; then
+    rc_file="$HOME/.zshrc"
+elif [[ -f "$HOME/.bashrc" ]]; then
+    rc_file="$HOME/.bashrc"
+else
+    rc_file="$HOME/.bashrc"
+    touch "$rc_file"
+fi
+
+if ! grep -q 'export PATH="$HOME/bin:$PATH"' "$rc_file" 2>/dev/null; then
+    echo 'export PATH="$HOME/bin:$PATH"' >> "$rc_file"
+    echo "Added to $rc_file"
+else
+    echo "$rc_file already has PATH configured"
 fi
 
 echo ""
