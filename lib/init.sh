@@ -66,15 +66,6 @@ dotbak_init() {
     echo "Created ~/.dotbakrc:"
     cat "$config_file"
 
-    if [[ ! -d "$tool_dir/.git" ]]; then
-        echo ""
-        read -p "Initialize git in tool directory? (y/n) " -n 1 -r
-        echo ""
-        if [[ $REPLY =~ ^[Yy]$ ]]; then
-            cd "$tool_dir" && git init
-        fi
-    fi
-
     if [[ ! -d "$backup_dir/.git" ]]; then
         echo ""
         read -p "Initialize git in backup directory? (y/n) " -n 1 -r
