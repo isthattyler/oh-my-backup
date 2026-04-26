@@ -1,0 +1,13 @@
+# OS files
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+*~
+
+# Backup directories (user data, not tool)
+# Users manage their own config-backups separately
+
+# Temporary files
+*.tmp
+*.temp

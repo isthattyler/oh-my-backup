@@ -1,0 +1,2 @@
+export DOTBAK_TOOL_DIR="$HOME/dotbak"
+export DOTBAK_BACKUP_DIR="$HOME/config-backups"

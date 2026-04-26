@@ -1,0 +1,132 @@
+#!/bin/bash
+
+if [[ -f "$HOME/.dotbakrc" ]]; then
+    source "$HOME/.dotbakrc"
+fi
+
+TOOL_DIR="${DOTBAK_TOOL_DIR:-$HOME/dotbak}"
+LIB_DIR="$TOOL_DIR/lib"
+
+show_usage() {
+    echo "dotbak - Config backup and restore tool"
+    echo ""
+    echo "Usage: dotbak <command> [options]"
+    echo ""
+    echo "Commands:"
+    echo "  init           Initialize dotbak (create tool and backup directories)"
+    echo "  backup <file>  Backup a config file (e.g., dotbak backup .zshrc)"
+    echo "  backup-all     Backup all tracked configs"
+    echo "  install <file> Install a config from backup"
+    echo "  install-all    Install all configs from backup"
+    echo "  list           List all available configs"
+    echo "  status         Show dotbak status"
+    echo ""
+    echo "Examples:"
+    echo "  dotbak init"
+    echo "  dotbak backup .zshrc"
+    echo "  dotbak backup ~/.config/opencode/opencode.json"
+    echo "  dotbak install .zshrc"
+    echo "  dotbak backup-all"
+    echo "  dotbak install-all"
+    echo ""
+    echo "Note: This tool requires Git Bash."
+}
+
+case "$1" in
+    init)
+        if [[ -d "$LIB_DIR" ]]; then
+            source "$LIB_DIR/init.sh"
+            dotbak_init
+        else
+            echo "Error: dotbak lib not found. Please reinstall dotbak."
+            exit 1
+        fi
+        ;;
+
+    backup)
+        if [[ -z "$2" ]]; then
+            echo "Error: Please specify a file to backup."
+            echo "Usage: dotbak backup "
+            exit 1
+        fi
+        if [[ -d "$LIB_DIR" ]]; then
+            source "$LIB_DIR/backup.sh"
+            dotbak_backup_single "$2"
+        else
+            echo "Error: dotbak lib not found. Please reinstall dotbak."
+            exit 1
+        fi
+        ;;
+
+    backup-all)
+        if [[ -d "$LIB_DIR" ]]; then
+            source "$LIB_DIR/backup.sh"
+            dotbak_backup_all
+        else
+            echo "Error: dotbak lib not found. Please reinstall dotbak."
+            exit 1
+        fi
+        ;;
+
+    install)
+        if [[ -z "$2" ]]; then
+            echo "Error: Please specify a file to install."
+            echo "Usage: dotbak install "
+            exit 1
+        fi
+        if [[ -d "$LIB_DIR" ]]; then
+            source "$LIB_DIR/install.sh"
+            dotbak_install_single "$2"
+        else
+            echo "Error: dotbak lib not found. Please reinstall dotbak."
+            exit 1
+        fi
+        ;;
+
+    install-all)
+        if [[ -d "$LIB_DIR" ]]; then
+            source "$LIB_DIR/install.sh"
+            dotbak_install_all
+        else
+            echo "Error: dotbak lib not found. Please reinstall dotbak."
+            exit 1
+        fi
+        ;;
+
+    list)
+        if [[ -d "$LIB_DIR" ]]; then
+            source "$LIB_DIR/list.sh"
+            dotbak_list_configs
+        else
+            echo "Error: dotbak lib not found. Please reinstall dotbak."
+            exit 1
+        fi
+        ;;
+
+    status)
+        if [[ -d "$LIB_DIR" ]]; then
+            source "$LIB_DIR/list.sh"
+            dotbak_status
+        else
+            echo "Error: dotbak lib not found. Please reinstall dotbak."
+            exit 1
+        fi
+        ;;
+
+    -h|--help|help)
+        show_usage
+        exit 0
+        ;;
+
+    *)
+        if [[ -z "$1" ]]; then
+            show_usage
+            exit 1
+        else
+            echo "Unknown command: $1"
+            echo ""
+            show_usage
+            exit 1
+        fi
+        ;;
+esac
